@@ -18,6 +18,7 @@ body {
   background-color: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-align: center;
 }
 
 img {
@@ -124,7 +125,8 @@ img {
 .ImageGallery {
   display: grid;
   max-width: calc(100vw - 48px);
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  /* grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); */
+   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   grid-gap: 16px;
   margin-top: 0;
   margin-bottom: 0;
@@ -181,6 +183,7 @@ img {
 * Стили компонента Buton (Load more)
 */
 .Button {
+  margin-bottom: 10px;
   padding: 8px 16px;
   border-radius: 2px;
   background-color: #3f51b5;
@@ -204,4 +207,16 @@ img {
 .Button:hover,
 .Button:focus {
   background-color: #303f9f;
+}
+
+.Container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 0 auto;
+}
+
+.ErrorMessage {
+  padding-top: 30px;
 }
