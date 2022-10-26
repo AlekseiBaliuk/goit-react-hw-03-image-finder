@@ -16,7 +16,7 @@ class App extends Component {
     showLoader: false,
     showModal: false,
     modalImageURL: null,
-    showErrorMEssage: false,
+    showErrorMessage: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -30,17 +30,23 @@ class App extends Component {
   }
 
   getImages(searchQuery, page) {
-    this.setState({ showLoader: true, showErrorMEssage: false });
+    this.setState({ showLoader: true, showErrorMessage: false });
     fetchImages(searchQuery, page)
       .then(searchData =>
         this.setState(prevState => ({
           images: [...prevState.images, ...searchData.hits],
           page: prevState.page + 1,
           showLoader: false,
-          showErrorMEssage: true,
+          showErrorMessage: true,
         }))
       )
-      .catch(error => this.setState({ error, status: 'rejected' }));
+      .catch(error => this.setState({ error }))
+      .finally(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth',
+        });
+      });
   }
 
   handleFormSubmit = searchQuery => {
@@ -75,13 +81,13 @@ class App extends Component {
   };
 
   render() {
-    const { images, showModal, showLoader, showErrorMEssage } = this.state;
+    const { images, showModal, showLoader, showErrorMessage } = this.state;
 
     return (
       <>
         <Searchbar onSubmit={this.handleFormSubmit} />
 
-        {images.length === 0 && showErrorMEssage && (
+        {images.length === 0 && showErrorMessage && (
           <ErrorMessage searchQuery={this.state.searchQuery} />
         )}
 
