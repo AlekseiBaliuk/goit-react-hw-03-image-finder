@@ -23,7 +23,10 @@ class App extends Component {
     const prevSearchQuery = prevState.searchQuery;
     const nextSearchQuery = this.state.searchQuery;
 
-    if (prevSearchQuery !== nextSearchQuery) {
+    const prevPage = prevState.page;
+    const nextPage = this.state.page;
+
+    if (prevSearchQuery !== nextSearchQuery || prevPage !== nextPage) {
       // console.log('Name changed');
       this.getImages(nextSearchQuery, this.state.page);
     }
@@ -32,16 +35,25 @@ class App extends Component {
   getImages(searchQuery, page) {
     this.setState({ showLoader: true, showErrorMessage: false });
     fetchImages(searchQuery, page)
-      .then(searchData =>
-        this.setState(prevState => ({
-          images: [...prevState.images, ...searchData.hits],
-          page: prevState.page + 1,
-          showLoader: false,
-          showErrorMessage: true,
-        }))
-      )
+      .then(searchData => {
+        if (searchData.totalHits === 0) {
+          this.setState({ showErrorMessage: true });
+        }
+        searchData.hits.map(({ id, webformatURL, largeImageURL, tags }) =>
+          this.setState(prevState => ({
+            // showErrorMessage: searchData.totalHits;
+            images: [
+              ...prevState.images,
+              { id, webformatURL, largeImageURL, tags },
+            ],
+          }))
+        );
+      })
       .catch(error => this.setState({ error }))
       .finally(() => {
+        this.setState({
+          showLoader: false,
+        });
         window.scrollTo({
           top: document.documentElement.scrollHeight,
           behavior: 'smooth',
@@ -51,20 +63,17 @@ class App extends Component {
 
   handleFormSubmit = searchQuery => {
     this.setState({
-      searchQuery: '',
+      searchQuery: searchQuery,
       images: [],
       page: 1,
-      error: null,
-      showLoader: false,
-      showModal: false,
-      modalImageURL: null,
+      showErrorMessage: false,
     });
-
-    this.setState({ searchQuery: searchQuery });
   };
 
   loadMore = () => {
-    this.getImages(this.state.searchQuery, this.state.page);
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
   };
 
   onImageClick = (largeImageURL, tags) => {
@@ -87,14 +96,17 @@ class App extends Component {
       <>
         <Searchbar onSubmit={this.handleFormSubmit} />
 
-        {images.length === 0 && showErrorMessage && (
+        {showErrorMessage && (
           <ErrorMessage searchQuery={this.state.searchQuery} />
         )}
 
-        <ImageGallery
-          images={this.state.images}
-          onImageClick={this.onImageClick}
-        />
+        {images.length !== 0 && (
+          <ImageGallery
+            images={this.state.images}
+            onImageClick={this.onImageClick}
+          />
+        )}
+
         {showLoader && <Loader />}
 
         {images.length > 0 && !showLoader && (
